@@ -722,7 +722,7 @@ function gatherVeggies(config)
     end
     srReadScreen()
     local not_suitables = findAllImages('veg_janitor/not_suitable.png')
-    if #not_suitables > 0 then
+    if #not_suitables > 0 and not config.allowdeadground then
       lsPlaySound("error.wav");
       error('Your location is no longer suitable for growing vegetables, please move!')
     end
@@ -884,4 +884,5 @@ function makeSearchBox(direction, seed_type)
   box.direction = direction
   return box
 end
+
 
