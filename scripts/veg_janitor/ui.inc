@@ -895,6 +895,17 @@ function getUserParams()
       config.num_runs = drawNumberEditBox("num_runs", "How many runs? ", 20)
       local invalid_key = config_is_invalid(config)
       lsDrawLine(5,lsScreenY-37,lsScreenX-5,lsScreenY-37,100,2,1,0xB0B0B0ff);
+      
+current_y = current_y + 5
+config.allowdeadground = CheckBox(
+  X_PADDING,
+  current_y,
+  10,
+  WHITE,
+  " Allow Dead Ground?",
+  config.allowdeadground
+)
+current_y = current_y + 30
 
       if not invalid_key then
         got_user_params = drawBottomButton(lsScreenX - 5, "Next step", GREEN)
