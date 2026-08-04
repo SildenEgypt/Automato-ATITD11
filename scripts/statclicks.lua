@@ -118,19 +118,32 @@ local items = {
   --focus
     ["Barrel Tap"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Barrel Tap") end
     },
     ["Bottle Stopper"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Bottle Stopper") end
     },
     ["Clay Lamp"] = {
       ["stat"] = "FOC",
       ["workFn"] = function () findAndClickText("Clay Lamp") end
     },
+    ["Small Cotter Pin"] = {
+      ["stat"] = "FOC",
+		["carving"] = true,
+      ["workFn"] = function () findAndClickText("Cotter Pin") end
+    },
     ["Crudely Carved Handle"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Crudely Carved Handle") end
+    },
+    ["Empty Tackle Block"] = {
+      ["stat"] = "FOC",
+		["carving"] = true,
+      ["workFn"] = function () findAndClickText("Tackle Block") end
     },
     ["Flint Hatchet"] = {
       ["stat"] = "FOC",
@@ -148,20 +161,29 @@ local items = {
       ["stat"] = "FOC",
       ["workFn"] = function () findAndClickText("Heavy Mallet") end
     },
+    ["Intricately Carved Handle"] = {
+      ["stat"] = "FOC",
+		["carving"] = true,
+      ["workFn"] = function () findAndClickText("Intricately Carved Handle") end
+    },
     ["Large Crude Handle"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Large Crude Handle") end
     },
     ["Long Sharp Stick"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Long Sharp Stick") end
     },
     ["Personal Chit"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Personal Chit") end
     },
     ["Rawhide Strips"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Rawhide Strips") end
     },
     ["Search Rotten Wood"] = {
@@ -170,6 +192,7 @@ local items = {
     },
     ["Sharpened Stick"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Sharpened Stick") end
     },
     ["Slate Shovel"] = {
@@ -190,10 +213,12 @@ local items = {
     },
     ["Tinder"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Tinder") end
     },
     ["Wooden Cog"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Wooden Cog") end
     },
     ["Wooden Dowsing Rod"] = {
@@ -202,10 +227,12 @@ local items = {
     },
     ["Wooden Peg"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Wooden Peg") end
     },
     ["Wooden Pestle"] = {
       ["stat"] = "FOC",
+		["carving"] = true,
       ["workFn"] = function () findAndClickText("Wooden Pestle") end
     },
 		["Relief Carving - Low"] = {
@@ -334,6 +361,34 @@ function doTasks()
       alertNoOnions = lsCheckBox(15, 60, z, 0xFFFFFFff, " Keep playing no Onion alert!!", alertNoOnions);
       lsSetCamera(0, 0, lsScreenX, lsScreenY);
     end
+	 
+    local focusTask = items[selectedTasks[4]];
+    if sharpenKnife and focusTask and focusTask.carving then
+      bluntKnife = srFindImage("statclicks/blunt.png");
+      if bluntKnife ~= nil then
+        -- right click on Blunt word
+        safeClick(bluntKnife[0], bluntKnife[1], true);
+        lsSleep(per_tick);
+        srReadScreen();
+        local sharpenOption = waitForText("Sharpen this Knife", 2000);
+        if sharpenOption then
+          clickText(sharpenOption);
+          lsSleep(per_tick);
+        end
+        -- right click again to reopen the knife menu
+        srReadScreen();
+        safeClick(bluntKnife[0], bluntKnife[1], true);
+        lsSleep(per_tick);
+        srReadScreen();
+        local preferOption = waitForText("Select as preferred Knife", 2000);
+        if preferOption then
+          clickText(preferOption);
+          lsSleep(per_tick);
+        end
+        srReadScreen();
+        closePopUp();
+      end
+    end
 
     if lsButtonText(lsScreenX - 110, lsScreenY - 30, z, 100, 0xFFFFFFff,
         "End script") then
@@ -368,7 +423,7 @@ function getClickActions()
     for i = 1, #statNames do
       lsPrint(5, y, z, 1, 1, 0xFFFFFFff, statNames[i]:gsub("^%l", string.upper) .. ":");
       y = y + 24;
-      tasks[i] = lsDropdown(statNames[i], 5, y, 0, 200, tasks[i], dropdown_item_values[statNames[i]]);
+      tasks[i] = lsDropdown(statNames[i], 5, y, 0, 260, tasks[i], dropdown_item_values[statNames[i]]);
       y = y + 32;
 
       selectedTasks[i] = dropdown_item_values[statNames[i]][tasks[i]];
@@ -392,17 +447,15 @@ function getClickActions()
           y = y + 25;
           lsPrintWrapped(15, y, 0, lsScreenX - 20, 1.0, 1.0, 0xFFFF80ff, "Pin the 'Grilled Onion' window.");
         end
-				
-				
-      if task.id == "Excavate Blocks" then
-				y = y + 15;
-        ignorePyramidBlock = readSetting("ignorePyramidBlock",ignorePyramidBlock);
-        ignorePyramidBlock = lsCheckBox(5, y, z, 0xFFFFFFff, " Ignore Pyramid Blocks", ignorePyramidBlock);
-        writeSetting("ignorePyramidBlock",ignorePyramidBlock);
-				y = y + 15;
-      end			
 
-			
+        if task.id == "Excavate Blocks" then
+  				y = y + 15;
+          ignorePyramidBlock = readSetting("ignorePyramidBlock",ignorePyramidBlock);
+          ignorePyramidBlock = lsCheckBox(5, y, z, 0xFFFFFFff, " Ignore Pyramid Blocks", ignorePyramidBlock);
+          writeSetting("ignorePyramidBlock",ignorePyramidBlock);
+  				y = y + 15;
+        end			
+		
         lsPrint(5, y+15, 10, scale, scale, 0xffff40ff,
         " - - - - - - - - - - - - - - - - - - - - - - - - - - -")
         y = y + 40;
@@ -421,12 +474,25 @@ function getClickActions()
           lsPrintWrapped(15, y, 0, lsScreenX - 20, 1.0, 1.0, 0xFFFF80ff, "Pin the 'Grilled Garlic' window.");
           y = y + 15;
         end
-        
+            
         y = y + 20
+        
         abortOnPopup = readSetting("abortOnPopup",abortOnPopup);
         abortOnPopup = lsCheckBox(5, y-10, z, 0xFFFFFFff, " Abort on Popup", abortOnPopup);
         writeSetting("abortOnPopup",abortOnPopup);
-
+    
+    		if task.carving then
+            y = y + 20
+    
+            sharpenKnife = readSetting("sharpenKnife",sharpenKnife);
+            sharpenKnife = lsCheckBox(5, y-10, z, 0xFFFFFFff, " Sharpen Blunt Knife", sharpenKnife);
+            if sharpenKnife then
+    			 y = y + 15
+    			 lsPrint(5, y, 0, 1, 1, 0xf00fffff, "Make Sure Knifes show in Inventory!");
+            end
+            writeSetting("sharpenKnife",sharpenKnife);
+    		end
+		
         lsPrint(5, y+15, 10, scale, scale, 0xffff40ff,
         " - - - - - - - - - - - - - - - - - - - - - - - - - - -")
         y = y + 40;
@@ -516,7 +582,7 @@ function getClickActions()
 
     lsDoFrame();
     lsSleep(tick_delay);
-    if lsButtonText(150, 55, z, 100, 0x00ff00ff, "OK") then
+    if lsButtonText(200, 55, z, 80, 0x00ff00ff, "OK") then
       done = true;
     end
   end
@@ -980,8 +1046,8 @@ function excavateBlocks()
   if window then
     for i = 1, #window do
       srClickMouseNoMove(window[i][0],window[i][1],1)
+      srReadScreen();
     end
-    srReadScreen();
   end
 	
 	local toothBlock = findAllText("Tooth Limestone Block");
