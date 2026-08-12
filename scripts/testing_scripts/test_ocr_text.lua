@@ -67,6 +67,10 @@ local x = 5;
 local w = 0;
 local bg = {};
 local z = 10;
+includeRedWindows = false; 
+minBuildingWindowBorderColorRange = 0x901E1E;
+maxBuildingWindowBorderColorRange = 0xA83333;
+
 function findStuff()
   local scale = 0.7;
   local y = 5;
@@ -94,7 +98,7 @@ function findStuff()
   y = y + 18;
   foo, text = lsEditBox("text", 10, y, z, 200, 25, scale, scale, 0x000000ff);  
   -- foo is set to 1 if the user presses enter while in the editbox
-  if (foo==1 or lsButtonText(220, y, z, 100, 0xff0Bffff, "Search")) then    
+  if (foo==1 or lsButtonText(220, y, z, 75, 0xff0Bffff, "Search")) then    
     searchText = text;
   end
 
@@ -105,6 +109,9 @@ function findStuff()
   y = y + 20;
   lsPrint(5, y, z, scale, scale, 0xFFFFFFff, "Y offset:    +/-");
   is_done, yOffset = lsEditBox("yoffset", 94, y, z, 50, 0, scale, scale, 0x000000ff, yOffset);
+  y = y + 20;
+
+  includeRedWindows = CheckBox(10, y, z, 0xFFFFFFff, " Search red-bordered (utility) windows", includeRedWindows);
   y = y + 20;
 
   -- needs clock finding image/code
@@ -119,7 +126,16 @@ function findStuff()
   y = y + 25;
 
 
+  if includeRedWindows then
+    srSetWindowBorderColorRange(minBuildingWindowBorderColorRange, maxBuildingWindowBorderColorRange);
+  end
+
   local status, result = pcall(function () return findAllText(searchText, nil, REGEX); end);
+
+  if includeRedWindows then
+    srSetWindowBorderColorRange(minThinWindowBorderColorRange, maxThinWindowBorderColorRange);
+  end
+
   if (status) then
     print('Status: '..tostring(status).. "; Results: "..#result);
     errorInfo = '';
