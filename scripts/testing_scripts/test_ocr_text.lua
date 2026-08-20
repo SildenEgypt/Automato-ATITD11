@@ -7,7 +7,7 @@ pointingSpeed = 2000; --ms
 function doit()
   lsRequireVersion(2,40);
   askForWindow("Test to find text in regions (windows) such building windows.\n\nEnter text value and optional offset. Mouse will point to location. Useful to finding where a macro is clicking.\n\nTo test image locations, use test_findImage_offset.lua\n\nPress Shift (while hovering ATITD) to continue.");
-
+  
   while true do
     checkBreak();
     findStuff();
@@ -67,6 +67,10 @@ local x = 5;
 local w = 0;
 local bg = {};
 local z = 10;
+searchMode = "standard"; -- "standard" | "gold" | "red"
+minBuildingWindowBorderColorRange = 0x901E1E;
+maxBuildingWindowBorderColorRange = 0xA83333;
+
 function findStuff()
   local scale = 0.7;
   local y = 5;
@@ -94,7 +98,7 @@ function findStuff()
   y = y + 18;
   foo, text = lsEditBox("text", 10, y, z, 200, 25, scale, scale, 0x000000ff);  
   -- foo is set to 1 if the user presses enter while in the editbox
-  if (foo==1 or lsButtonText(220, y, z, 100, 0xff0Bffff, "Search")) then    
+  if (foo==1 or lsButtonText(220, y, z, 75, 0xff0Bffff, "Search")) then    
     searchText = text;
   end
 
@@ -105,6 +109,20 @@ function findStuff()
   y = y + 20;
   lsPrint(5, y, z, scale, scale, 0xFFFFFFff, "Y offset:    +/-");
   is_done, yOffset = lsEditBox("yoffset", 94, y, z, 50, 0, scale, scale, 0x000000ff, yOffset);
+  y = y + 20;
+
+  lsPrint(5, y, z, scale, scale, 0xFFFFFFff, "Window border:");
+  y = y + 18;
+  local pickedStandard = CheckBox(10, y, z, 0xFFFFFFff, " Standard", searchMode == "standard");
+  local pickedGold = CheckBox(110, y, z, 0xFFFFFFff, " Gold", searchMode == "gold");
+  local pickedRed = CheckBox(190, y, z, 0xFFFFFFff, " Red", searchMode == "red");
+  if pickedStandard and searchMode ~= "standard" then
+    searchMode = "standard";
+  elseif pickedGold and searchMode ~= "gold" then
+    searchMode = "gold";
+  elseif pickedRed and searchMode ~= "red" then
+    searchMode = "red";
+  end
   y = y + 20;
 
   -- needs clock finding image/code
@@ -119,7 +137,18 @@ function findStuff()
   y = y + 25;
 
 
+  if searchMode == "gold" then
+    srSetWindowBorderColorRange(minThickWindowBorderColorRange, maxThickWindowBorderColorRange);
+  elseif searchMode == "red" then
+    srSetWindowBorderColorRange(minBuildingWindowBorderColorRange, maxBuildingWindowBorderColorRange);
+  end
+
   local status, result = pcall(function () return findAllText(searchText, nil, REGEX); end);
+
+  if searchMode ~= "standard" then
+    srSetWindowBorderColorRange(minThinWindowBorderColorRange, maxThinWindowBorderColorRange);
+  end
+
   if (status) then
     print('Status: '..tostring(status).. "; Results: "..#result);
     errorInfo = '';
